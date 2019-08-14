@@ -1,0 +1,6 @@
+server:
+  port: 8080
+
+msga:
+  settings:
+    file: /Users/kristian/git/msga/acestream-server-manager/out/settings.json

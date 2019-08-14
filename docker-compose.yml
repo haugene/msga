@@ -1,0 +1,20 @@
+version: '3'
+services:
+ acestream-server:
+  container_name: streamer
+  cap_add:
+    - NET_ADMIN
+  image: haugene/msga
+  restart: "no"
+  ports:
+    - "8080:8080"
+    - "30000:30000"
+  volumes:
+    - msga-config:/opt/msga
+  tmpfs:
+    - "/dev/disk/by-id:noexec,rw,size=4k"
+  environment:
+    - TZ=CET
+
+volumes:
+  msga-config:
