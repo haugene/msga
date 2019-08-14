@@ -22,13 +22,13 @@ class SettingsService {
         .readValue(File(settingsFileLocation))
 
     fun settingsFileExists(): Boolean {
-        println("Looking for file $settingsFileLocation")
+        logger.info("Looking for file $settingsFileLocation")
         val settingsFile = File(settingsFileLocation)
         return settingsFile.exists() && settingsFile.isFile
     }
 
     fun generateSettings() {
-        println("Settings will be written to: $settingsFileLocation")
+        logger.info("Settings will be written to: $settingsFileLocation")
 
         val settings = SettingsDto(
             listOf("8.8.8.8", "8.8.4.4"),
