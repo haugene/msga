@@ -77,7 +77,7 @@ class StreamTestService {
         while (now().isBefore(start.plusSeconds(test.timePerStream))) {
             Thread.sleep(500)
             val statsResponse = requestStats(streamInfo.stat_url)
-            if (statsResponse.response == null) throw Exception()
+            if (statsResponse.response == null) throw Exception() // TODO: Maybe add better error handling here
             val stats = statsResponse.response
 
             statuses.add(stats.status)
