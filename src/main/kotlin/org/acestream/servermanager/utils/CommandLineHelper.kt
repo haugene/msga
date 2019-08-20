@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.acestream.servermanager.domain.AcestreamInfo
+import org.acestream.servermanager.domain.SettingsDto
 import org.acestream.servermanager.services.SettingsService
 import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
@@ -27,18 +28,23 @@ class CommandLineHelper(
     fun startAcestreamServer(): String {
         val logFile = File("/var/log/acestream/server1.log")
 
-        val port = try {
-            openPort()
-        } catch (e: Exception) {
-            logger.warn("Couldn't get an open port from PIA, defaulting to 25000", e)
-            "25000"
+        if (settings().fetchOpenPort) {
+            try {
+                settingsService.update(settings().copy(aceServerPort = openPort()))
+            } catch (e: Exception) {
+                logger.warn("Couldn't get an open port from PIA, falling back to value from settings.json", e)
+            }
         }
+
 
         val process = ProcessExecutor()
             .command(
                 "/opt/acestream/acestreamengine",
                 "--client-console",
-                "--port=$port",
+                "--live-cache-type memory",
+                "--live-cache-size ${settings().liveCacheSize * 1024 * 1024}",
+                "--port=${settings().aceServerPort}",
+                "--live-buffer ${settings().liveBufferSeconds}",
                 "--http-port=30000"
             )
             .redirectOutput(logFile.outputStream())
@@ -142,8 +148,9 @@ class CommandLineHelper(
     fun setDnsServers() {
         logger.info("Setting DNS records")
         File("/etc/resolv.conf")
-            .writeText(settingsService.getSettings()
-                .dnsServers.joinToString(separator = "\n", transform = { "nameserver $it" })
+            .writeText(
+                settingsService.getSettings()
+                    .dnsServers.joinToString(separator = "\n", transform = { "nameserver $it" })
             )
     }
 
@@ -155,7 +162,7 @@ class CommandLineHelper(
             .get(String::class.java)
     }
 
-    fun openPort(): String {
+    fun openPort(): Int {
         val piaClientId = RandomStringUtils.randomAlphanumeric(60)
         val response = ClientBuilder.newClient()
             .target("http://209.222.18.222:2000")
@@ -166,10 +173,12 @@ class CommandLineHelper(
         val port = ObjectMapper().readValue<JsonNode>(response).get("port").asText()
         logger.info("Got port $port from PIA")
 
-        return port
+        return port.toInt()
     }
 
     fun openvpnLogs(): String {
         return File("/opt/openvpn/client.log").readText()
     }
+
+    fun settings(): SettingsDto = settingsService.getSettings()
 }

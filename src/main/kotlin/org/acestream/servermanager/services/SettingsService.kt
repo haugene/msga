@@ -31,10 +31,15 @@ class SettingsService {
         logger.info("Settings will be written to: $settingsFileLocation")
 
         val settings = SettingsDto(
-            listOf("8.8.8.8", "8.8.4.4"),
+            configureDnsServers = true,
+            dnsServers = listOf("8.8.8.8", "8.8.4.4"),
             connectVpnOnStartup = false,
             openvpnUsername = "",
-            openvpnPassword = ""
+            openvpnPassword = "",
+            liveCacheSize = 200,
+            fetchOpenPort = true,
+            aceServerPort = 25000,
+            liveBufferSeconds = 30
         )
 
         writeSettings(settings)
@@ -42,7 +47,7 @@ class SettingsService {
 
     private fun writeSettings(settings: SettingsDto) {
         val settingsFile = File(settingsFileLocation)
-        avoidUnintendedOverwrites(settingsFile)
+        avoidOverridingDirectories(settingsFile)
         settingsFile.writeText(
             jacksonObjectMapper()
                 .writerWithDefaultPrettyPrinter()
@@ -50,7 +55,7 @@ class SettingsService {
         )
     }
 
-    private fun avoidUnintendedOverwrites(settingsFile: File) {
+    private fun avoidOverridingDirectories(settingsFile: File) {
         if (settingsFile.exists() && settingsFile.isDirectory) {
             throw IllegalArgumentException("Settings-file cannot be a directory (which already exists)")
         }

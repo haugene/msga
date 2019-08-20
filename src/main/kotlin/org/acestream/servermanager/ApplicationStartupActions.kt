@@ -21,7 +21,7 @@ class ApplicationStartupActions(
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         val settings = loadSettings()
-        setDnsServers()
+        if (settings.configureDnsServers) commandLineHelper.setDnsServers()
         if (settings.connectVpnOnStartup) commandLineHelper.startOpenvpn()
     }
 
@@ -34,9 +34,4 @@ class ApplicationStartupActions(
         }
         return settingsService.getSettings()
     }
-
-    private fun setDnsServers() {
-        commandLineHelper.setDnsServers()
-    }
-
 }
