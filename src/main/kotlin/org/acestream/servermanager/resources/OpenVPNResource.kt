@@ -17,6 +17,11 @@ class OpenVPNResource(
         return cliHelper.startOpenvpn()
     }
 
+    @GetMapping("running")
+    fun isOpenVpnRunning(): Map<String, Boolean> {
+        return mapOf(Pair("running", cliHelper.openVpnIsRunning()))
+    }
+
     @GetMapping("logs")
     fun logs(): String {
         return cliHelper.openvpnLogs()

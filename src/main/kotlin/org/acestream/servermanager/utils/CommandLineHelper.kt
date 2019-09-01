@@ -98,6 +98,7 @@ class CommandLineHelper(
             .command(
                 "openvpn",
                 "--writepid", "/opt/openvpn/pid.txt",
+                "--status", "/opt/openvpn/status.txt", "5",
                 "--log", "/opt/openvpn/client.log",
                 //"--log-append", "/opt/openvpn/client.log", // Append instead of replace on each run
                 "--script-security", "2",
@@ -181,4 +182,15 @@ class CommandLineHelper(
     }
 
     fun settings(): SettingsDto = settingsService.getSettings()
+    fun openVpnIsRunning(): Boolean {
+        val pidFile = File("/opt/openvpn/pid.txt")
+        if (!pidFile.exists()) return false
+
+        val result = ProcessExecutor().command("ps", "-p", pidFile.readLines().first())
+            .redirectError(Slf4jStream.of(logger).asWarn())
+            .exitValueAny()
+            .execute()
+
+        return result.exitValue == 0
+    }
 }
