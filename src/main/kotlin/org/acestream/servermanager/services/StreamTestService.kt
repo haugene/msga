@@ -3,10 +3,7 @@ package org.acestream.servermanager.services
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.acestream.servermanager.domain.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -20,6 +17,7 @@ class StreamTestService {
     val aceBase = "http://localhost:30000/ace/getstream"
 
     private val streamTests: MutableMap<Int, StreamTest> = mutableMapOf()
+    private var currentTest: Pair<Int, Job?> = Pair(0, null)
 
     companion object {
         private val logger = LoggerFactory.getLogger(StreamTestService::class.java)
@@ -40,13 +38,27 @@ class StreamTestService {
 
         streamTests[testId] = streamTest
 
-        GlobalScope.launch {
+        cancelOngoingTests(testId)
+        val job =GlobalScope.launch {
             testStreams(streamTest)
         }
+
+        currentTest = Pair(testId, job)
         return testId
     }
 
-    fun testStreams(test: StreamTest) {
+    private fun cancelOngoingTests(testId: Int) {
+        val currentTestJobId = currentTest.first
+        val currentTestJob = currentTest.second
+
+        if (currentTestJob != null && currentTestJob.isActive) {
+            logger.info("Test number $currentTestJobId is already running, cancelling it to start new test (#$testId)")
+            currentTestJob.cancel()
+            streamTests[currentTestJobId]!!.cancelled = true
+        }
+    }
+
+    private fun testStreams(test: StreamTest) {
         runBlocking {
 
             for (streamId in test.streamIds) {
@@ -61,6 +73,7 @@ class StreamTestService {
                 }
 
                 logger.info("Completed testing of:  $streamId")
+                test.completed = true
             }
 
         }
