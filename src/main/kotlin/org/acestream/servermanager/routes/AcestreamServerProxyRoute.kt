@@ -8,7 +8,7 @@ class AcestreamServerProxyRoute : SpringRouteBuilder() {
     override fun configure() {
         from("servlet:server?servletName=AcestreamProxyServlet&matchOnUriPrefix=true")
             .routeId("acestream-server-proxy")
-            .toD("http://localhost:30000?bridgeEndpoint=true")
-
+            .to("http://localhost:30000?bridgeEndpoint=true")
+            .process { it.`in`.headers["Access-Control-Allow-Origin"] = "*" }
     }
 }

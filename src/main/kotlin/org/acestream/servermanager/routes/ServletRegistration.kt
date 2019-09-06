@@ -14,4 +14,11 @@ class ServletRegistration {
         servlet.setName("AcestreamProxyServlet")
         return servlet
     }
+
+    @Bean
+    fun requestProxyServletRegistrationBean(): ServletRegistrationBean<CamelHttpTransportServlet> {
+        val servlet = ServletRegistrationBean(CamelHttpTransportServlet(), "/proxy" + "/*")
+        servlet.setName("RequestProxyServlet")
+        return servlet
+    }
 }
