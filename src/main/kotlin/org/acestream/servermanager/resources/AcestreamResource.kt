@@ -6,7 +6,9 @@ import org.acestream.servermanager.services.StreamTestService
 import org.acestream.servermanager.utils.CommandLineHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
+import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("acestream")
@@ -18,7 +20,13 @@ class AcestreamResource(
 
     @GetMapping("start")
     fun startAcestreamServer(): String {
+        if (cliHelper.acestreamIsRunning()) throw WebApplicationException(Response.Status.CONFLICT)
         return cliHelper.startAcestreamServer()
+    }
+
+    @GetMapping("running")
+    fun isOpenVpnRunning(): Map<String, Boolean> {
+        return mapOf(Pair("running", cliHelper.acestreamIsRunning()))
     }
 
     @PostMapping("testStreams")
