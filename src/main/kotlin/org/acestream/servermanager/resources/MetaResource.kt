@@ -3,12 +3,14 @@ package org.acestream.servermanager.resources
 import org.acestream.servermanager.domain.MetaInfoDto
 import org.acestream.servermanager.utils.CommandLineHelper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("meta")
+@CrossOrigin(origins = ["*"])
 class MetaResource(
     @Autowired val cliHelper: CommandLineHelper
 ) {

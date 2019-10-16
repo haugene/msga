@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType
 
 @RestController
 @RequestMapping("acestream")
+@CrossOrigin(origins = ["*"])
 class AcestreamResource(
     @Autowired val cliHelper: CommandLineHelper,
     @Autowired val streamTestService: StreamTestService

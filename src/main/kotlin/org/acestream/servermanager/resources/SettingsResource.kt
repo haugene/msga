@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("settings")
+@CrossOrigin(origins = ["*"])
 class SettingsResource(
     @Autowired val settingsService: SettingsService
 ) {
