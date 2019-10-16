@@ -64,17 +64,20 @@ class StreamTestService {
             for (streamId in test.streamIds) {
                 logger.info("Testing Acestream id $streamId")
 
-                val streamResponse = requestStream(streamId)
-                if (streamResponse.response == null) {
-                    streamFailed(streamId, test, streamResponse)
-                } else {
-                    delay(5000L) // Wait 5 seconds before starting to poll stats
-                    test.streamTestResults.add(collectTestResults(test, streamId, streamResponse.response))
+                try {
+                    val streamResponse = requestStream(streamId)
+                    if (streamResponse.response == null) {
+                        streamFailed(streamId, test, streamResponse)
+                    } else {
+                        delay(5000L) // Wait 5 seconds before starting to poll stats
+                        test.streamTestResults.add(collectTestResults(test, streamId, streamResponse.response))
+                    }
+                } catch (e: Exception) {
+                    streamFailed(streamId, test, GetStreamResponse(response = null, error="Got exception while requesting stream from Acestream Engine. Is it started? Error message: ${e.message}"))
                 }
-
                 logger.info("Completed testing of:  $streamId")
-                test.completed = true
             }
+            test.completed = true
 
         }
     }

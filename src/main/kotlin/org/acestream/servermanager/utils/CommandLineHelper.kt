@@ -210,6 +210,7 @@ class CommandLineHelper(
         val int = defaultRoute.split(" ")[4]
 
         for (network in settings().localNetworkRoutes) {
+            logger.info("Adding route through local lan for traffic going to $network")
             ProcessExecutor().command("/sbin/ip", "r", "a", network, "via", gw, "dev", int)
                     .redirectError(Slf4jStream.of(logger).asWarn())
                     .exitValueNormal()
