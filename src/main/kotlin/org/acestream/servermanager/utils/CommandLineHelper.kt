@@ -193,4 +193,28 @@ class CommandLineHelper(
 
         return result.exitValue == 0
     }
+
+    fun configureIpTables() {
+        // Returns something like "default via 172.20.0.1 dev eth0"
+        val defaultRoute = ProcessExecutor().command("/sbin/ip", "r", "l", "m", "0.0.0.0")
+                .redirectError(Slf4jStream.of(logger).asWarn())
+                .readOutput(true)
+                .execute()
+                .outputUTF8()
+                .trim()
+
+        val routeParts = defaultRoute.split(" ")
+        if (routeParts.size != 5) throw IllegalStateException("Unknown output from iptables route")
+
+        val gw = defaultRoute.split(" ")[2]
+        val int = defaultRoute.split(" ")[4]
+
+        for (network in settings().localNetworkRoutes) {
+            ProcessExecutor().command("/sbin/ip", "r", "a", network, "via", gw, "dev", int)
+                    .redirectError(Slf4jStream.of(logger).asWarn())
+                    .exitValueNormal()
+                    .execute()
+        }
+        logger.info("Set up all configured ip routes bypassing VPN")
+    }
 }

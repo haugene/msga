@@ -19,7 +19,7 @@ class SettingsService {
     lateinit var settingsFileLocation: String
 
     fun getSettings(): SettingsDto = jacksonObjectMapper()
-        .readValue(File(settingsFileLocation))
+            .readValue(File(settingsFileLocation))
 
     fun settingsFileExists(): Boolean {
         logger.info("Looking for file $settingsFileLocation")
@@ -31,15 +31,17 @@ class SettingsService {
         logger.info("Settings will be written to: $settingsFileLocation")
 
         val settings = SettingsDto(
-            configureDnsServers = true,
-            dnsServers = listOf("8.8.8.8", "8.8.4.4"),
-            connectVpnOnStartup = false,
-            openvpnUsername = "",
-            openvpnPassword = "",
-            liveCacheSize = 200,
-            fetchOpenPort = true,
-            aceServerPort = 25000,
-            liveBufferSeconds = 30
+                configureDnsServers = true,
+                dnsServers = listOf("8.8.8.8", "8.8.4.4"),
+                connectVpnOnStartup = false,
+                openvpnUsername = "",
+                openvpnPassword = "",
+                liveCacheSize = 200,
+                fetchOpenPort = true,
+                aceServerPort = 25000,
+                liveBufferSeconds = 30,
+                configureLocalNetworkRoutes = false,
+                localNetworkRoutes = emptyList()
         )
 
         writeSettings(settings)
@@ -49,9 +51,9 @@ class SettingsService {
         val settingsFile = File(settingsFileLocation)
         avoidOverridingDirectories(settingsFile)
         settingsFile.writeText(
-            jacksonObjectMapper()
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(settings)
+                jacksonObjectMapper()
+                        .writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(settings)
         )
     }
 

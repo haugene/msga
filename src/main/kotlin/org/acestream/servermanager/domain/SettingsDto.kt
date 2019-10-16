@@ -9,5 +9,7 @@ data class SettingsDto(
     val liveCacheSize: Int,
     val fetchOpenPort: Boolean,
     val aceServerPort: Int,
-    val liveBufferSeconds: Int
+    val liveBufferSeconds: Int,
+    val configureLocalNetworkRoutes: Boolean,
+    val localNetworkRoutes: List<String>
 )
