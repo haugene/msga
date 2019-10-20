@@ -26,10 +26,11 @@ class CommandLineHelper(
         private val logger = LoggerFactory.getLogger(CommandLineHelper::class.java)
     }
 
+    val acestreamLog = "/var/log/acestream/server.log"
     var acestreamProcess: StartedProcess? = null
 
     fun startAcestreamServer(): String {
-        val logFile = File("/var/log/acestream/server1.log")
+        val logFile = File(acestreamLog)
 
         if (settings().fetchOpenPort) {
             try {
@@ -38,7 +39,6 @@ class CommandLineHelper(
                 logger.warn("Couldn't get an open port from PIA, falling back to value from settings.json", e)
             }
         }
-
 
         acestreamProcess = ProcessExecutor()
                 .command(
@@ -56,6 +56,10 @@ class CommandLineHelper(
 
         logger.info("AceStream is alive: ${acestreamIsRunning()}")
         return "OK"
+    }
+
+    fun stopAcestreamServer() {
+        acestreamProcess?.process?.destroy()
     }
 
     fun getJavaVersion(): String {
@@ -182,7 +186,21 @@ class CommandLineHelper(
     }
 
     fun openvpnLogs(): String {
-        return File("/opt/openvpn/client.log").readText()
+        val logFile = File("/opt/openvpn/client.log")
+        return if (logFile.exists()){
+            logFile.readText()
+        } else {
+            "Log file not found. Is Acestream started?"
+        }
+    }
+
+    fun acestreamLogs(): String {
+        val logFile = File(acestreamLog)
+        return if (logFile.exists()){
+            logFile.readText()
+        } else {
+            "Log file not found. Is Acestream started?"
+        }
     }
 
     fun settings(): SettingsDto = settingsService.getSettings()

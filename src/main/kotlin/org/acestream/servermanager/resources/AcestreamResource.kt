@@ -24,9 +24,22 @@ class AcestreamResource(
         return cliHelper.startAcestreamServer()
     }
 
+    @GetMapping("stop")
+    fun stopAcestreamServer() {
+        if (!cliHelper.acestreamIsRunning()) {
+            return
+        }
+        cliHelper.stopAcestreamServer()
+    }
+
     @GetMapping("running")
     fun isOpenVpnRunning(): Map<String, Boolean> {
         return mapOf(Pair("running", cliHelper.acestreamIsRunning()))
+    }
+
+    @GetMapping("logs")
+    fun logs(): String {
+        return cliHelper.acestreamLogs()
     }
 
     @PostMapping("testStreams")
