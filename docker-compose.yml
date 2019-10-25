@@ -1,11 +1,10 @@
 version: '3'
 services:
- acestream-server:
-  container_name: streamer
+ msga-server:
   cap_add:
     - NET_ADMIN
   image: haugene/msga
-  restart: "no"
+  restart: "unless-stopped"
   ports:
     - "8080:8080"
     - "30000:30000"

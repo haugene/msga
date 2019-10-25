@@ -94,6 +94,9 @@ class CommandLineHelper(
     }
 
     fun startOpenvpn() {
+        if (settings().configureLocalNetworkRoutes) {
+            configureIpTables()
+        }
         if (!tunDeviceExists()) {
             logger.info("No TUN device exists, creating one")
             createTunDevice()
