@@ -190,7 +190,7 @@ class CommandLineHelper(
 
     fun openvpnLogs(): String {
         val logFile = File("/opt/openvpn/client.log")
-        return if (logFile.exists()){
+        return if (logFile.exists()) {
             logFile.readText()
         } else {
             "Log file not found. Is Acestream started?"
@@ -199,7 +199,7 @@ class CommandLineHelper(
 
     fun acestreamLogs(): String {
         val logFile = File(acestreamLog)
-        return if (logFile.exists()){
+        return if (logFile.exists()) {
             logFile.readText()
         } else {
             "Log file not found. Is Acestream started?"
@@ -231,7 +231,7 @@ class CommandLineHelper(
                 .trim()
 
         val routeParts = defaultRoute.split(" ")
-        if (routeParts.size != 5) throw IllegalStateException("Unknown output from iptables route")
+        check(routeParts.size == 5) { "Unknown output from iptables route" }
 
         val gw = defaultRoute.split(" ")[2]
         val int = defaultRoute.split(" ")[4]
@@ -244,5 +244,16 @@ class CommandLineHelper(
                     .execute()
         }
         logger.info("Set up all configured ip routes bypassing VPN")
+    }
+
+    fun stopOpenvpn() {
+        val pidFile = File("/opt/openvpn/pid.txt")
+        check(pidFile.exists()) { "How do you kill what is already dead?" }
+
+        val pid: String? = "\\d+".toRegex().find(pidFile.readText())?.value
+        ProcessExecutor().command("/bin/kill", "$pid")
+                .redirectError(Slf4jStream.of(logger).asWarn())
+                .exitValueNormal()
+                .execute()
     }
 }
