@@ -9,16 +9,17 @@ import java.net.URL
 @CrossOrigin(origins = ["*"])
 class GetAcestreamResource {
 
-    val regex = """acestream://([a-zA-Z0-9]+)""".toRegex()
+    val regex = """[a-fA-F0-9]{40}""".toRegex()
 
     @GetMapping
-    fun getAceStream(@RequestParam("url") url: String): AcestreamUrlDto {
+    fun getAceStream(@RequestParam("url") url: String): List<AcestreamUrlDto> {
         try {
+            println("reading $url");
             val body = URL(url).readText()
-            val matchResult = regex.find(body)
-            return AcestreamUrlDto(acestream = matchResult?.value)
+            return regex.findAll(test).map { AcestreamUrlDto(acestream = it.value) }.toList()
         } catch (e: Exception) {
-            return AcestreamUrlDto(acestream = null)
+            println(e.toString());
         }
+        return emptyList()
     }
 }
