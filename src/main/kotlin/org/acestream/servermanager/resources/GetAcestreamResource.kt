@@ -16,7 +16,7 @@ class GetAcestreamResource {
         try {
             println("reading $url");
             val body = URL(url).readText()
-            return regex.findAll(test).map { AcestreamUrlDto(acestream = it.value) }.toList()
+            return regex.findAll(body).map { AcestreamUrlDto(acestream = it.value) }.toList()
         } catch (e: Exception) {
             println(e.toString());
         }
