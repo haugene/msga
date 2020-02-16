@@ -28,6 +28,12 @@ RUN apt-get update && apt-get install --no-install-recommends --yes \
 	&& apt-get clean \
     && rm --force --recursive /var/lib/apt/lists
 
+# Set up static hosting
+RUN mkdir -p /opt/static
+WORKDIR /opt/static
+RUN wget https://codeload.github.com/andyno/msga-web/zip/master -O static.zip
+RUN unzip static.zip
+
 # Set up MSGA manager app
 RUN mkdir -p /opt/msga
 WORKDIR /opt/acestream-server-manager/
